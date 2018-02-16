@@ -23,6 +23,7 @@
     <ProjectGuid>{6A1B6770-E74D-44A0-87B1-8ECCF3246020}</ProjectGuid>
     <RootNamespace>ProyectoBase</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <ProjectName>ProyectoNonBlocking</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
