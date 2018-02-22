@@ -1,9 +1,10 @@
-﻿  Main.cpp
-Main.cpp(33): warning C4244: 'argumento': conversión de 'float' a 'sf::Int32'; posible pérdida de datos
-Main.cpp(148): warning C4244: 'argumento': conversión de '::size_t' a 'float'; posible pérdida de datos
-  Generando código
-  191 of 196 functions (97.4%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
-  Generación de código finalizada
-  ProyectoBase.vcxproj -> C:\Users\Adria\Documents\GitHub\ProjecteXat2018\ProyectoBase\x64\Release\ProyectoBase.exe
+﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(387,5): warning MSB8028: The intermediate directory (x64\Release\) contains files shared from another project (ProyectoBase.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+  Main.cpp
+Main.cpp(35): warning C4244: 'argument': conversion from 'float' to 'sf::Int32', possible loss of data
+Main.cpp(150): warning C4244: 'argument': conversion from '::size_t' to 'float', possible loss of data
+  Generating code
+  22 of 216 functions (10.2%) were compiled, the rest were copied from previous compilation.
+    21 functions were new in current compilation
+    38 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  ProyectoBase.vcxproj -> C:\Users\abiarnes\source\repos\ProjecteXat2018\ProyectoBase\x64\Release\ProyectoNonBlocking.exe
