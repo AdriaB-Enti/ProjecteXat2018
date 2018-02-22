@@ -18,7 +18,7 @@ int main()
 	std::string textoAEnviar="";
 	std::vector<std::string> aMensajes;
 	std::string user = "";	//client o server
-	std::cout << "Escribe tu nombre\n";
+	std::cout << "Escribe tu nombre:\n";
 	std::cin >> user;
 	if (c == 's')
 	{
@@ -96,8 +96,7 @@ int main()
 					//aMensajes.push_back(user+mensaje);
 					
 					//Send-------------------
-					std::string lastMessage = mensaje;
-					aMensajes.pop_back();
+					std::string lastMessage = user + ": " + mensaje;
 					size_t confirmedSend;
 					sf::Socket::Status st;
 					do
