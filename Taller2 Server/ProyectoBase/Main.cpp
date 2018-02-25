@@ -2,7 +2,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
-#define MAXPLAYERS 2
+#define MAXPLAYERS 3
 
 
 int main()
@@ -11,9 +11,7 @@ int main()
 	//Servidor Cliente
 	std::vector<sf::TcpSocket*> sockets;
 	
-	int playersConnected = 0;		//no sé si fa falta (es pot usar el vector.size()
-
-	std::string textoAEnviar="";
+	std::string textoAEnviar="";	//em sembla que no el faig servir
 	std::vector<std::string> aMensajes;
 	sf::TcpListener listener;
 
@@ -25,11 +23,24 @@ int main()
 		newSock->setBlocking(false);
 		sockets.push_back(newSock);
 		textoAEnviar = "Mensaje desde servidor\n";
-		std::cout << "User connected:\n";
 
 		std::string texto = "Conexion con ... " + (newSock->getRemoteAddress()).toString() + ":" + std::to_string(newSock->getRemotePort()) + "\n";
 		std::cout << texto;
-		playersConnected++;
+
+		for (std::vector<sf::TcpSocket*>::iterator it = sockets.begin(); it != sockets.end(); ++it)			//Enviamos un mensaje a los demás clientes cuando alguien se conecta
+		{
+			std::string newClient = "Se ha conectado un nuevo usuario. Bienvenido!";
+			size_t confirmedSend;
+			sf::Socket::Status st;
+			do
+			{
+				st = (*it)->send(newClient.c_str(), newClient.length(), confirmedSend);
+				if (st == sf::Socket::Status::Partial)
+				{
+					newClient = newClient.substr(confirmedSend + 1, newClient.length());
+				}
+			} while (st == sf::Socket::Status::Partial);
+		}
 	}
 	listener.close();
 
@@ -70,6 +81,7 @@ int main()
 			}
 			else if (result == sf::TcpSocket::Status::Disconnected)
 			{
+				//enviar a cada
 				//aMensajes.push_back("The user has disconnected");
 			}
 
@@ -77,7 +89,7 @@ int main()
 		}
 	}
 
-	for (int playerN = 0; playerN < MAXPLAYERS; playerN++)	//aquí en teoria no arribarà mai....
+	for (int playerN = 0; playerN < MAXPLAYERS; playerN++)	//aquí en teoria no arribarà mai.... 
 	{
 		sockets.at(playerN)->disconnect();
 	}

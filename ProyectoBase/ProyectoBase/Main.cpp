@@ -22,6 +22,7 @@ int main()
 	std::cin >> user;
 	if (c == 's')
 	{
+		std::cout << "esto no deberia";
 		sf::TcpListener listener;
 		listener.listen(50000);
 		listener.accept(socket);
@@ -32,7 +33,15 @@ int main()
 	}
 	else if (c == 'c')
 	{
-		socket.connect("localhost", 50000, sf::milliseconds(15.f));
+		std::cout << "Escribe la IP del servidor (pulsa enter si quieres conectarte a localhost):\n";
+		std::string ip = "";
+		std::cin.ignore();
+		std::getline(std::cin, ip);
+		if (ip.empty()) {
+			ip = "localhost";
+		}
+
+		socket.connect(ip, 50000, sf::milliseconds(15.f));
 		textoAEnviar = "Mensaje desde cliente\n";
 		aMensajes.push_back("Chat is online: You are the client!");
 		//user = "Client: ";
