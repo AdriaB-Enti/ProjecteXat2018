@@ -1,8 +1,8 @@
-﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(387,5): warning MSB8028: El directorio intermedio (x64\Release\) contiene archivos compartidos de otro proyecto (ProyectoBase.vcxproj). Esto puede dar lugar a un comportamiento incorrecto de limpieza y recompilación.
+﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(387,5): warning MSB8028: The intermediate directory (x64\Release\) contains files shared from another project (ProyectoBase.vcxproj).  This can lead to incorrect clean and rebuild behavior.
   Main.cpp
-  Generando código
-  1 of 187 functions ( 0.5%) were compiled, the rest were copied from previous compilation.
+  Generating code
+  2 of 187 functions ( 1.1%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    1 functions had inline decision re-evaluated but remain unchanged
-  Generación de código finalizada
-  ProyectoBase.vcxproj -> C:\Users\Adria\Documents\GitHub\ProjecteXat2018\Taller2 Server\x64\Release\ServidorNonBlocking.exe
+    8 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  ProyectoBase.vcxproj -> C:\Users\abiarnes\Documents\ProjecteXat2018\Taller2 Server\x64\Release\ServidorNonBlocking.exe

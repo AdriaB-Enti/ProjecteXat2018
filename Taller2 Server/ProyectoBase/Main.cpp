@@ -34,7 +34,7 @@ int main()
 	while (true)																							//el server estarà sempre obert
 	{
 		std::vector<sf::TcpSocket*>::iterator it = sockets.begin();
-		while (it != sockets.end())			//fem un recieve per cada client -- potser dona problemes si un es desconecta (estarem mirant tots els sockets)
+		while (it != sockets.end())			//fem un recieve per cada client
 		{
 			//Receive-------------------------------
 			sf::TcpSocket::Status result = (*it)->receive(buffer, 100, bytesReceived);
@@ -54,6 +54,18 @@ int main()
 				it = sockets.erase(it);
 				sendToAll(sockets, "Un usuario se ha desconectado");
 			}
+			else if (result == sf::TcpSocket::Status::Error) {
+				std::cout << "ERROR!!!" << std::endl;
+				++it;
+			}
+			else if (result == sf::TcpSocket::Status::NotReady) {
+				//std::cout << "NOT READY---------" << std::endl;
+				++it;
+			}
+			else
+			{
+				++it;
+			}
 			//End Receive-------------------------------
 		}
 	}
@@ -65,13 +77,13 @@ int main()
 }
 
 void sendToAll(std::vector<sf::TcpSocket*> &sockets, std::string mensaje) {
-	for (std::vector<sf::TcpSocket*>::iterator it = sockets.begin(); it != sockets.end(); ++it)
+	for (std::vector<sf::TcpSocket*>::iterator itera = sockets.begin(); itera != sockets.end(); ++itera)
 	{
 		size_t confirmedSend;
 		sf::Socket::Status st;
 		do
 		{
-			st = (*it)->send(mensaje.c_str(), mensaje.length(), confirmedSend);
+			st = (*itera)->send(mensaje.c_str(), mensaje.length(), confirmedSend);
 			if (st == sf::Socket::Status::Partial)
 			{
 				mensaje = mensaje.substr(confirmedSend + 1, mensaje.length());
