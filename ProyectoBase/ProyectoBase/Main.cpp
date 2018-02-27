@@ -17,23 +17,34 @@ int main()
 	socket.setBlocking(false);
 	std::string textoAEnviar="";
 	std::vector<std::string> aMensajes;
-	sf::String user = "";	//client o server
+	std::string user = "";	//client o server
+	std::cout << "Escribe tu nombre:\n";
+	std::cin >> user;
 	if (c == 's')
 	{
+		std::cout << "esto no deberia";
 		sf::TcpListener listener;
 		listener.listen(50000);
 		listener.accept(socket);
 		textoAEnviar = "Mensaje desde servidor\n";
 		listener.close();
 		aMensajes.push_back("Chat is online: You are the server!");
-		user = "Server: ";
+		//user = "Server: ";
 	}
 	else if (c == 'c')
 	{
-		socket.connect("localhost", 50000, sf::milliseconds(15.f));
+		std::cout << "Escribe la IP del servidor (pulsa enter si quieres conectarte a localhost):\n";
+		std::string ip = "";
+		std::cin.ignore();
+		std::getline(std::cin, ip);
+		if (ip.empty()) {
+			ip = "localhost";
+		}
+
+		socket.connect(ip, 50000, sf::milliseconds(15.f));
 		textoAEnviar = "Mensaje desde cliente\n";
 		aMensajes.push_back("Chat is online: You are the client!");
-		user = "Client: ";
+		//user = "Client: ";
 	}
 	else
 	{
@@ -91,11 +102,10 @@ int main()
 					window.close();
 				else if (evento.key.code == sf::Keyboard::Return)
 				{
-					aMensajes.push_back(user+mensaje);
-					
+					//aMensajes.push_back(user+mensaje);
 					
 					//Send-------------------
-					std::string lastMessage = aMensajes.back();
+					std::string lastMessage = user + ": " + mensaje;
 					size_t confirmedSend;
 					sf::Socket::Status st;
 					do
