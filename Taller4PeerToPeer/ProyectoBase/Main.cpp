@@ -29,7 +29,7 @@ int main()
 	}
 	else if (c == 'c')
 	{
-		std::cout << "Escribe la IP del servidor (pulsa enter si quieres conectarte a localhost):\n";
+		std::cout << "Escribe la IP del bootsrap server (pulsa enter si quieres conectarte a localhost):\n";
 		std::string ip = "";
 		std::cin.ignore();
 		std::getline(std::cin, ip);
