@@ -6,14 +6,23 @@
 
 #define BOOTSTRAP_PORT 50000
 #define BOOTSTRAP_IP "localhost"
+struct Direccion
+{
+	std::string ip;
+	unsigned short port;
+};
+
+//TODO: sendToAll();
 
 int main()
 {
+	std::vector<Direccion> direcciones;
+
 	sf::TcpSocket socket;
 	socket.setBlocking(false);
 	sf::String ip = BOOTSTRAP_IP;	//TODO-- POSAR LO DEL ENTER
 	std::cout << "Conectando...\n";
-	sf::Socket::Status status = socket.connect(sf::IpAddress(ip), BOOTSTRAP_PORT, sf::milliseconds(15.f));	//TODO: controlar-----
+	sf::Socket::Status status = socket.connect("localhost", BOOTSTRAP_PORT, sf::milliseconds(15.f));	//TODO: controlar?-----
 	std::cout << "Conectado con: " << socket.getRemoteAddress() << std::endl;
 	std::string statusStr = "";
 	switch (status)
@@ -38,9 +47,39 @@ int main()
 	}
 	std::cout << "Status: " << statusStr << std::endl;
 	
+	//rebre les dades del packet
+	sf::Packet packet;
+	status = socket.receive(packet);
+	while (status!= sf::TcpSocket::Status::Done)
+	{
+		status = socket.receive(packet);
+	}
+	sf::Int8 numDirecciones = 0;
+	packet >> numDirecciones;
+	std::cout << "num direcciones " << (int)numDirecciones << std::endl;
+	if (numDirecciones > 0)
+	{
+		/*for (int i = 0; i < numDirecciones; i++)
+		{
+			Direccion dir = {};
+			packet >> dir.ip;
+			packet >> dir.port;
+			direcciones.push_back(dir);
+		}*/
+	}
+	else
+	{
+		std::cout << "no se han recibido direcciones\n";
+	}
 
 
 
+
+	std::cout << "Direcciones guardadas: " << direcciones.size() << std::endl;
+	for (int i = 0; i < direcciones.size(); i++)
+	{
+		std::cout << direcciones[i].ip << " port: " << direcciones[i].port << std::endl;
+	}
 
 
 

@@ -3,8 +3,9 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <windows.h>
 
-#define MAX_PLAYERS 2 //TODO - CANVIAR PER 4 --------------------------------
+#define MAX_PLAYERS 3 //TODO - CANVIAR PER 4 --------------------------------
 #define LISTEN_PORT 50000
 struct Direccion
 {
@@ -32,11 +33,15 @@ int main() {
 			}
 			else
 			{
+				
 				std::cout << "Conectado con: " << sock.getRemoteAddress() << std::endl;
 				sf::Packet packet;
-				//usar packet
-				//omplir amb les direccions
-				//enviar el packet
+				packet << (sf::Int8) direcciones.size();
+				/*for (int dir = 0; dir < direcciones.size(); dir++)
+				{
+					packet << direcciones[i].ip << direcciones[i].port;
+				}*/
+				sock.send(packet);
 				direcciones.push_back({ sock.getRemoteAddress().toString(), sock.getRemotePort() });
 				sock.disconnect();
 			}
