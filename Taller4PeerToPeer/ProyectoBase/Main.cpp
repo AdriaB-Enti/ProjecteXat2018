@@ -4,13 +4,48 @@
 #include <iostream>
 #include <vector>
 
-
+#define BOOTSTRAP_PORT 50000
+#define BOOTSTRAP_IP "localhost"
 
 int main()
 {
-	char c = 'c';	//TODO: treure tot el codi antic
 	sf::TcpSocket socket;
 	socket.setBlocking(false);
+	sf::String ip = BOOTSTRAP_IP;	//TODO-- POSAR LO DEL ENTER
+	std::cout << "Conectando...\n";
+	sf::Socket::Status status = socket.connect(sf::IpAddress(ip), BOOTSTRAP_PORT, sf::milliseconds(15.f));	//TODO: controlar-----
+	std::cout << "Conectado con: " << socket.getRemoteAddress() << std::endl;
+	std::string statusStr = "";
+	switch (status)
+	{
+	case sf::Socket::Done:
+		statusStr = "Done";
+		break;
+	case sf::Socket::NotReady:
+		statusStr = "NotReady";
+		break;
+	case sf::Socket::Partial:
+		statusStr = "Partial";
+		break;
+	case sf::Socket::Disconnected:
+		statusStr = "Disconnected";
+		break;
+	case sf::Socket::Error:
+		statusStr = "Error";
+		break;
+	default:
+		break;
+	}
+	std::cout << "Status: " << statusStr << std::endl;
+	
+
+
+
+
+
+
+	/*
+	char c = 'c';	//TODO: treure tot el codi antic-----------------
 	std::string textoAEnviar="";
 	std::vector<std::string> aMensajes;
 	std::string user = "";	//client o server
@@ -162,9 +197,11 @@ int main()
 		window.clear();
 	}
 
-	
-	socket.disconnect();
 
+	*/
+	
+
+	socket.disconnect();
 	
 	system("pause");
 	
