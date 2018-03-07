@@ -9,8 +9,8 @@
 #define LISTEN_PORT 50000
 struct Direccion
 {
-	std::string ip;
-	unsigned short port;
+	sf::String ip;
+	sf::Uint16 port;
 };
 int main() {
 	std::vector<Direccion> direcciones;
@@ -37,10 +37,11 @@ int main() {
 				std::cout << "Conectado con: " << sock.getRemoteAddress() << std::endl;
 				sf::Packet packet;
 				packet << (sf::Int8) direcciones.size();
-				/*for (int dir = 0; dir < direcciones.size(); dir++)
+				for (int dir = 0; dir < direcciones.size(); dir++)
 				{
-					packet << direcciones[i].ip << direcciones[i].port;
-				}*/
+					packet << direcciones[dir].ip;
+					packet << direcciones[dir].port;
+				}
 				sock.send(packet);
 				direcciones.push_back({ sock.getRemoteAddress().toString(), sock.getRemotePort() });
 				sock.disconnect();
@@ -51,7 +52,8 @@ int main() {
 	std::cout << "Direcciones guardadas: " << direcciones.size() << std::endl;
 	for (int i = 0; i < direcciones.size(); i++)
 	{
-		std::cout << direcciones[i].ip << " port: " << direcciones[i].port << std::endl;
+		//std::cout << direcciones[i].ip.toAnsiString() << " port: ";
+		std::cout << direcciones[i].ip.toAnsiString() << " port: " << direcciones[i].port << std::endl;
 	}
 	listener.close();
 	system("pause");

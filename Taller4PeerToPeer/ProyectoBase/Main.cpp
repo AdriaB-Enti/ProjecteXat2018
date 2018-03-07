@@ -9,7 +9,7 @@
 struct Direccion
 {
 	std::string ip;
-	unsigned short port;
+	sf::Uint16 port;
 };
 
 //TODO: sendToAll();
@@ -59,13 +59,19 @@ int main()
 	std::cout << "num direcciones " << (int)numDirecciones << std::endl;
 	if (numDirecciones > 0)
 	{
-		/*for (int i = 0; i < numDirecciones; i++)
+		for (int i = 0; i < numDirecciones; i++)
 		{
-			Direccion dir = {};
+			sf::String provaIP;
+			sf::Uint16 port;
+			packet >> provaIP;
+			packet >> port;
+			//std::cout << "IP: " << provaIP.toAnsiString() << std::endl;
+			std::cout << "IP: " << provaIP.toAnsiString() << " port: " << (int)port << std::endl;
+			/*Direccion dir = {};
 			packet >> dir.ip;
 			packet >> dir.port;
-			direcciones.push_back(dir);
-		}*/
+			direcciones.push_back(dir);*/
+		}
 	}
 	else
 	{
@@ -74,12 +80,12 @@ int main()
 
 
 
-
+	/*
 	std::cout << "Direcciones guardadas: " << direcciones.size() << std::endl;
 	for (int i = 0; i < direcciones.size(); i++)
 	{
 		std::cout << direcciones[i].ip << " port: " << direcciones[i].port << std::endl;
-	}
+	}*/
 
 
 
