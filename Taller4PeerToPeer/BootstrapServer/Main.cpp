@@ -3,7 +3,6 @@
 #include <string>
 #include <iostream>
 #include <vector>
-#include <windows.h>
 
 #define MAX_PLAYERS 3 //TODO - CANVIAR PER 4 --------------------------------
 #define LISTEN_PORT 50000

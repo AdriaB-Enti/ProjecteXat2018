@@ -3,8 +3,9 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <Windows.h>
 
-#define MAX_PLAYERS 3 //TODO - CANVIAR PER 4 --------------------------------
+#define MAX_PLAYERS 3 //TODO - CANVIAR PER 4 ---------------------------------------------
 #define BOOTSTRAP_PORT 50000
 #define BOOTSTRAP_IP "localhost"
 struct Direccion
@@ -13,7 +14,6 @@ struct Direccion
 	sf::Uint16 port;
 };
 
-//TODO: sendToAll();
 void coutStatus(sf::TcpSocket::Status &status) {
 	std::string statusStr = "";
 	switch (status)
@@ -38,15 +38,19 @@ void coutStatus(sf::TcpSocket::Status &status) {
 	}
 	std::cout << "Status: " << statusStr << std::endl;
 }
+
+void sendAll(sf::String msg);
+void recieveFromAll();
+
+bool test = false;
+std::vector<sf::TcpSocket*> sockets;
 int main()
 {
 	std::vector<Direccion> direcciones;
-	std::vector<sf::TcpSocket*> sockets;
 	unsigned short myPort;
 
 
 	sf::TcpSocket socket;
-	socket.setBlocking(false);
 	sf::String ip = BOOTSTRAP_IP;	//TODO-- POSAR LO DEL ENTER
 	std::cout << "Conectando...\n";
 	sf::Socket::Status status = socket.connect(sf::IpAddress(ip), BOOTSTRAP_PORT, sf::milliseconds(15));	//TODO: controlar?-----
@@ -54,24 +58,19 @@ int main()
 	std::cout << "Conectado con: " << socket.getRemoteAddress() << std::endl;
 	coutStatus(status);
 	
-	//rebre les dades del packet
+	//Rebre les dades del packet
 	sf::Packet packet;
 	status = socket.receive(packet);
 	while (status!= sf::Socket::Status::Done)
 	{
 		status = socket.receive(packet);
 	}
-	//sock.disconnect();
+	socket.disconnect();
 	sf::Int8 numDirecciones = 0;
 	packet >> numDirecciones;
 	std::cout << "Num direcciones recibidas: " << (int)numDirecciones << std::endl;
 	for (int i = 0; i < numDirecciones; i++)
 	{
-		/*sf::String provaIP;
-		sf::Uint16 port;
-		packet >> provaIP;
-		packet >> port;*/
-		//std::cout << "IP: " << provaIP.toAnsiString() << " port: " << (int)port << std::endl;
 		Direccion dir = {};
 		packet >> dir.ip;
 		packet >> dir.port;
@@ -80,6 +79,7 @@ int main()
 	if (numDirecciones == 0)
 	{
 		std::cout << "No se han recibido direcciones\n";
+		test = true;
 	}
 
 	std::cout << "Direcciones guardadas: " << direcciones.size() << std::endl;
@@ -89,35 +89,25 @@ int main()
 	}
 
 
-
-	//conectar-se als que tenim
+	//Conectar-se als peer's que tenim
 	for (int i = 0; i < direcciones.size(); i++)
 	{
 		std::cout << "Conectando con... " << direcciones[i].ip.toAnsiString() << ":" << direcciones[i].port << std::endl;
 		sf::TcpSocket *newSocket = new sf::TcpSocket();
-		newSocket->setBlocking(false);
 		status = newSocket->connect(sf::IpAddress(direcciones[i].ip), (unsigned short)direcciones[i].port, sf::milliseconds(15));
 		coutStatus(status);
 		sockets.push_back(newSocket);
 	}
 
-
-
-	//esperar que sen's conectin els que falten
+	//Esperar que sen's conectin els peer's que falten
 	if (direcciones.size() < MAX_PLAYERS-1)
 	{
 		sf::TcpListener listener;
 		listener.listen(myPort);
-		std::cout << "Despres del listen\n";
 		for (int i = direcciones.size(); i < MAX_PLAYERS-1; i++)
 		{
 			sf::TcpSocket *newSocket = new sf::TcpSocket();
-			newSocket->setBlocking(false);
-			do
-			{
-				status = listener.accept(*newSocket);		//-------------------------- controlar
-			} while (status == sf::Socket::Status::Error);
-
+			status = listener.accept(*newSocket);		//-------------------------- controlar?
 			coutStatus(status);
 			sockets.push_back(newSocket);
 		}
@@ -125,10 +115,32 @@ int main()
 	}
 
 	std::cout << "Cliente terminado. Conexiones establecidas: " << sockets.size() << std::endl;
-	/*
-	char c = 'c';	//TODO: treure tot el codi antic-----------------
+
+	//CHAT
+	//poner los sockets en nonBlocking
+	/*for (int i = 0; i < sockets.size(); i++)
+	{
+		sockets[i]->setBlocking(false);
+	}*/
+
 	std::string textoAEnviar="";
 	std::vector<std::string> aMensajes;
+	//TODO: fer que el send i el receive funcionin en nonBlocking (ara està en blocking)
+	if (test)
+	{
+		Sleep(5000);
+		sendAll("Hello peers!!");
+
+	} else{
+		while (true)
+		{
+			recieveFromAll();
+
+		}
+	}
+
+
+	/*
 	std::string user = "";	//client o server
 	std::cout << "Escribe tu nombre:\n";
 	std::cin >> user;
@@ -290,3 +302,24 @@ int main()
 	return 0;
 
 }
+
+void sendAll(sf::String msg) {
+	for (int i = 0; i < sockets.size(); i++)
+	{
+		size_t confirmedSend;
+		sockets[i]->send(msg.toAnsiString().c_str(), msg.toAnsiString().length(), confirmedSend);	//TODO.... comprovar que s'hagi enviat tot...
+	}
+}
+
+void recieveFromAll() {
+	for (int i = 0; i < sockets.size(); i++)
+	{
+		char buffer[100];
+		size_t bytesReceived;
+		sf::TcpSocket::Status result = sockets[i]->receive(buffer, 100, bytesReceived);
+		buffer[bytesReceived] = '\0';
+		
+		std::cout << "MENSAJE" << std::string(buffer) << std::endl;	//TODO: CANVIAR perque retorni una string
+	}
+}
+
