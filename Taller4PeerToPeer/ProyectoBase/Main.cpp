@@ -4,26 +4,17 @@
 #include <iostream>
 #include <vector>
 
+#define MAX_PLAYERS 3 //TODO - CANVIAR PER 4 --------------------------------
 #define BOOTSTRAP_PORT 50000
 #define BOOTSTRAP_IP "localhost"
 struct Direccion
 {
-	std::string ip;
+	sf::String ip;
 	sf::Uint16 port;
 };
 
 //TODO: sendToAll();
-
-int main()
-{
-	std::vector<Direccion> direcciones;
-
-	sf::TcpSocket socket;
-	socket.setBlocking(false);
-	sf::String ip = BOOTSTRAP_IP;	//TODO-- POSAR LO DEL ENTER
-	std::cout << "Conectando...\n";
-	sf::Socket::Status status = socket.connect("localhost", BOOTSTRAP_PORT, sf::milliseconds(15.f));	//TODO: controlar?-----
-	std::cout << "Conectado con: " << socket.getRemoteAddress() << std::endl;
+void coutStatus(sf::TcpSocket::Status &status) {
 	std::string statusStr = "";
 	switch (status)
 	{
@@ -46,49 +37,94 @@ int main()
 		break;
 	}
 	std::cout << "Status: " << statusStr << std::endl;
+}
+int main()
+{
+	std::vector<Direccion> direcciones;
+	std::vector<sf::TcpSocket*> sockets;
+	unsigned short myPort;
+
+
+	sf::TcpSocket socket;
+	socket.setBlocking(false);
+	sf::String ip = BOOTSTRAP_IP;	//TODO-- POSAR LO DEL ENTER
+	std::cout << "Conectando...\n";
+	sf::Socket::Status status = socket.connect(sf::IpAddress(ip), BOOTSTRAP_PORT, sf::milliseconds(15));	//TODO: controlar?-----
+	myPort = socket.getLocalPort();
+	std::cout << "Conectado con: " << socket.getRemoteAddress() << std::endl;
+	coutStatus(status);
 	
 	//rebre les dades del packet
 	sf::Packet packet;
 	status = socket.receive(packet);
-	while (status!= sf::TcpSocket::Status::Done)
+	while (status!= sf::Socket::Status::Done)
 	{
 		status = socket.receive(packet);
 	}
+	//sock.disconnect();
 	sf::Int8 numDirecciones = 0;
 	packet >> numDirecciones;
-	std::cout << "num direcciones " << (int)numDirecciones << std::endl;
-	if (numDirecciones > 0)
+	std::cout << "Num direcciones recibidas: " << (int)numDirecciones << std::endl;
+	for (int i = 0; i < numDirecciones; i++)
 	{
-		for (int i = 0; i < numDirecciones; i++)
-		{
-			sf::String provaIP;
-			sf::Uint16 port;
-			packet >> provaIP;
-			packet >> port;
-			//std::cout << "IP: " << provaIP.toAnsiString() << std::endl;
-			std::cout << "IP: " << provaIP.toAnsiString() << " port: " << (int)port << std::endl;
-			/*Direccion dir = {};
-			packet >> dir.ip;
-			packet >> dir.port;
-			direcciones.push_back(dir);*/
-		}
+		/*sf::String provaIP;
+		sf::Uint16 port;
+		packet >> provaIP;
+		packet >> port;*/
+		//std::cout << "IP: " << provaIP.toAnsiString() << " port: " << (int)port << std::endl;
+		Direccion dir = {};
+		packet >> dir.ip;
+		packet >> dir.port;
+		direcciones.push_back(dir);
 	}
-	else
+	if (numDirecciones == 0)
 	{
-		std::cout << "no se han recibido direcciones\n";
+		std::cout << "No se han recibido direcciones\n";
 	}
 
-
-
-	/*
 	std::cout << "Direcciones guardadas: " << direcciones.size() << std::endl;
 	for (int i = 0; i < direcciones.size(); i++)
 	{
-		std::cout << direcciones[i].ip << " port: " << direcciones[i].port << std::endl;
-	}*/
+		std::cout << direcciones[i].ip.toAnsiString() << " port: " << direcciones[i].port << std::endl;
+	}
 
 
 
+	//conectar-se als que tenim
+	for (int i = 0; i < direcciones.size(); i++)
+	{
+		std::cout << "Conectando con... " << direcciones[i].ip.toAnsiString() << ":" << direcciones[i].port << std::endl;
+		sf::TcpSocket *newSocket = new sf::TcpSocket();
+		newSocket->setBlocking(false);
+		status = newSocket->connect(sf::IpAddress(direcciones[i].ip), (unsigned short)direcciones[i].port, sf::milliseconds(15));
+		coutStatus(status);
+		sockets.push_back(newSocket);
+	}
+
+
+
+	//esperar que sen's conectin els que falten
+	if (direcciones.size() < MAX_PLAYERS-1)
+	{
+		sf::TcpListener listener;
+		listener.listen(myPort);
+		std::cout << "Despres del listen\n";
+		for (int i = direcciones.size(); i < MAX_PLAYERS-1; i++)
+		{
+			sf::TcpSocket *newSocket = new sf::TcpSocket();
+			newSocket->setBlocking(false);
+			do
+			{
+				status = listener.accept(*newSocket);		//-------------------------- controlar
+			} while (status == sf::Socket::Status::Error);
+
+			coutStatus(status);
+			sockets.push_back(newSocket);
+		}
+		listener.close();
+	}
+
+	std::cout << "Cliente terminado. Conexiones establecidas: " << sockets.size() << std::endl;
 	/*
 	char c = 'c';	//TODO: treure tot el codi antic-----------------
 	std::string textoAEnviar="";
@@ -247,7 +283,8 @@ int main()
 	
 
 	socket.disconnect();
-	
+	//TODO: FER UN DISCONNECT DE TOTS ELS SOCKETS QUE TENIM
+
 	system("pause");
 	
 	return 0;

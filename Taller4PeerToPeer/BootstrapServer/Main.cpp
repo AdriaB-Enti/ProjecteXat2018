@@ -34,7 +34,7 @@ int main() {
 			else
 			{
 				
-				std::cout << "Conectado con: " << sock.getRemoteAddress() << std::endl;
+				std::cout << "Conectado con: " << sock.getRemoteAddress() << ":" << sock.getRemotePort() << std::endl;
 				sf::Packet packet;
 				packet << (sf::Int8) direcciones.size();
 				for (int dir = 0; dir < direcciones.size(); dir++)
@@ -55,6 +55,7 @@ int main() {
 		//std::cout << direcciones[i].ip.toAnsiString() << " port: ";
 		std::cout << direcciones[i].ip.toAnsiString() << " port: " << direcciones[i].port << std::endl;
 	}
+	std::cout << "Trabajo del servidor terminado, cerrando listener\n";
 	listener.close();
 	system("pause");
 	return 0;
