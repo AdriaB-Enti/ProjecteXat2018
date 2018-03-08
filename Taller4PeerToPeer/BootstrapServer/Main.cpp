@@ -3,6 +3,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <Windows.h>
 
 #define MAX_PLAYERS 3 //TODO - CANVIAR PER 4 --------------------------------
 #define LISTEN_PORT 50000
@@ -48,13 +49,8 @@ int main() {
 		}
 
 	}
-	std::cout << "Direcciones guardadas: " << direcciones.size() << std::endl;
-	for (int i = 0; i < direcciones.size(); i++)
-	{
-		//std::cout << direcciones[i].ip.toAnsiString() << " port: ";
-		std::cout << direcciones[i].ip.toAnsiString() << " port: " << direcciones[i].port << std::endl;
-	}
-	std::cout << "Trabajo del servidor terminado, cerrando listener\n";
+	std::cout << "N de direcciones guardadas: " << direcciones.size() << std::endl;
+	std::cout << "Tareas del servidor terminadas, cerrando listener\n";
 	listener.close();
 	system("pause");
 	return 0;
