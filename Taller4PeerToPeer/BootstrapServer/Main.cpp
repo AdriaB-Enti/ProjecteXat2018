@@ -5,7 +5,7 @@
 #include <vector>
 #include <Windows.h>
 
-#define MAX_PLAYERS 3 //TODO - CANVIAR PER 4 --------------------------------
+#define MAX_PLAYERS 4	//4
 #define LISTEN_PORT 50000
 struct Direccion
 {
@@ -50,7 +50,7 @@ int main() {
 
 	}
 	std::cout << "N de direcciones guardadas: " << direcciones.size() << std::endl;
-	std::cout << "Tareas del servidor terminadas, cerrando listener\n";
+	std::cout << "\nTareas del servidor terminadas, cerrando listener\n";
 	listener.close();
 	system("pause");
 	return 0;

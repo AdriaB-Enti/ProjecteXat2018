@@ -1,3 +1,4 @@
+//Código Peer 2 Peer
 #include <SFML\Network.hpp>
 #include <SFML\Graphics.hpp>
 #include <string>
@@ -5,7 +6,7 @@
 #include <vector>
 #include <Windows.h>
 
-#define MAX_PLAYERS 3 //TODO - CANVIAR PER 4 ---------------------------------------------
+#define MAX_PLAYERS 4	//4
 #define BOOTSTRAP_PORT 50000
 #define BOOTSTRAP_IP "localhost"
 struct Direccion
@@ -18,7 +19,6 @@ void coutStatus(sf::TcpSocket::Status &status);
 void sendAll(sf::String msg);
 void recieveFromAll();
 
-bool test = false;
 std::vector<sf::TcpSocket*> sockets;
 std::vector<Direccion> direcciones;
 sf::Socket::Status status;
@@ -34,14 +34,15 @@ int main()
 
 
 	sf::TcpSocket socket;
-	sf::String ip = BOOTSTRAP_IP;	//TODO-- POSAR LO DEL ENTER
-	std::cout << "Conectando al servidor bootstrap...\n";
-	status = socket.connect(sf::IpAddress(ip), BOOTSTRAP_PORT, sf::milliseconds(15));	//TODO: controlar?-----
+	sf::String ip = BOOTSTRAP_IP;
+	std::cout << "\nConectando al servidor bootstrap...\n";
+	status = socket.connect(sf::IpAddress(ip), BOOTSTRAP_PORT, sf::milliseconds(15));
 	myPort = socket.getLocalPort();
 	if (status == sf::Socket::Status::Done)
-		std::cout << "Conectado al servidor (" << socket.getRemoteAddress() << ")"<< std::endl;
+		std::cout << "Conexion al servidor (" << socket.getRemoteAddress() << ") con exito"<< std::endl;
 	coutStatus(status);
 	
+
 	//Rebre les dades del packet
 	sf::Packet packet;
 	status = socket.receive(packet);
@@ -57,12 +58,9 @@ int main()
 		packet >> dir.port;
 		direcciones.push_back(dir);
 	}
-	if (numDirecciones == 0)
-	{
-		std::cout << "No se han recibido direcciones\n";
-		test = true;
-	}
-	std::cout << "--------- Iniciando conexion entre peers ---------\n";
+
+
+	std::cout << "\n--------- Iniciando conexion entre peers ---------\n";
 	//Conectar-se als peer's que tenim
 	for (int i = 0; i < direcciones.size(); i++)
 	{
@@ -76,20 +74,20 @@ int main()
 	//Esperar que sen's conectin els peer's que falten
 	if (direcciones.size() < MAX_PLAYERS-1)
 	{
+		std::cout << "--------- Activando listener ---------\n";
 		sf::TcpListener listener;
 		listener.listen(myPort);
 		for (int i = direcciones.size(); i < MAX_PLAYERS-1; i++)
 		{
 			sf::TcpSocket *newSocket = new sf::TcpSocket();
-			status = listener.accept(*newSocket);		//-------------------------- controlar?
+			status = listener.accept(*newSocket);
 			std::cout << "Encontrada conexion con: " << newSocket->getRemoteAddress().toString() << ":" << newSocket->getRemotePort() << std::endl;
 			coutStatus(status);
 			sockets.push_back(newSocket);
 		}
 		listener.close();
 	}
-
-	std::cout << "Cliente terminado. Conexiones establecidas: " << sockets.size() << std::endl;
+	std::cout << "Terminado. Conexiones establecidas: " << sockets.size() << std::endl;
 
 	//poner los sockets en nonBlocking
 	for (int i = 0; i < sockets.size(); i++)
@@ -97,29 +95,9 @@ int main()
 		sockets[i]->setBlocking(false);
 	}
 
-	/*if (test)
-	{
-		Sleep(5000);
-		sendAll("Hello peers!!");
-		Sleep(1000);
-		sendAll("Bye peers!!");
-	} else{
-		while (true)
-		{
-			recieveFromAll();
-		}
-	}*/
 
-
-	std::cout << "--------- Iniciando chat ---------\n";
-	aMensajes.push_back("Chat is online. Welcome!");
-	/*std::cout << "Escribe la IP del bootsrap server (pulsa enter si quieres conectarte a localhost):\n";
-	std::string ip = "";
-	std::cin.ignore();
-	std::getline(std::cin, ip);
-	if (ip.empty()) {
-		ip = "localhost";
-	}*/
+	std::cout << "\n--------- Iniciando chat ---------\n";
+	aMensajes.push_back("-Chat is online. Welcome "+user+"!-");
 	std::string textoAEnviar="";
 
 	//GUI--------------------------------------------------------------
@@ -167,22 +145,11 @@ int main()
 					window.close();
 				else if (evento.key.code == sf::Keyboard::Return)
 				{
-					//aMensajes.push_back(user+mensaje);
-					
-					//Send-------------------
 					std::string messageToSend = user + ": " + mensaje;
-					//size_t confirmedSend;
-					//sf::Socket::Status st;
-					//do
-					//{
-					//	st = socket.send(messageToSend.c_str(), messageToSend.length(), confirmedSend);	//vigilar lo del messageToSend
-					//	if (st == sf::Socket::Status::Partial)
-					//	{
-					//		messageToSend = messageToSend.substr(confirmedSend+1, messageToSend.length());	//length() segur?
-					//	}
-					//} while (st == sf::Socket::Status::Partial);
-					////End Send-------------------
+
+					//------------------ Send ------------------
 					sendAll(messageToSend);
+					aMensajes.push_back(messageToSend);
 
 					if (aMensajes.size() > 25)
 					{
@@ -201,21 +168,8 @@ int main()
 		}
 		window.draw(separator);
 
-		//Receive-------------------------------
-		//sf::TcpSocket::Status result = socket.receive(buffer, 100, bytesReceived);
-		//buffer[bytesReceived] = '\0';
-		//if (result == sf::TcpSocket::Status::Done)
-		//{
-		//	aMensajes.push_back(std::string(buffer)); //segurament s'ha de passar el buffer a string
-		//}
-		//else if (result == sf::TcpSocket::Status::Disconnected)
-		//{
-		//	aMensajes.push_back("The user has disconnected");
-		//	window.close();
-		//}
+		//------------------ Receive------------------
 		recieveFromAll();
-		//End Receive-------------------------------
-
 
 		for (size_t i = 0; i < aMensajes.size(); i++)
 		{
@@ -236,11 +190,50 @@ int main()
 	for (int i = 0; i < sockets.size(); i++)
 	{
 		sockets[i]->disconnect();
+		delete(sockets[i]);
 	}
+	std::cout << "--------- Chat finalizado, conexiones cerradas ---------\n";
 	system("pause");
 	
 	return 0;
 
+}
+
+void sendAll(sf::String msg) {
+	for (int i = 0; i < sockets.size(); i++)
+	{
+		size_t confirmedSend;
+		do
+		{
+			status = sockets[i]->send(msg.toAnsiString().c_str(), msg.toAnsiString().length(), confirmedSend);
+			if (status == sf::Socket::Status::Partial)
+			{
+				msg = msg.substring(confirmedSend + 1, msg.getSize());
+			}
+		} while (status == sf::Socket::Status::Partial);
+
+	}
+}
+
+void recieveFromAll() {
+	for (int i = 0; i < sockets.size(); i++)
+	{
+		char buffer[100];
+		size_t bytesReceived;
+		status = sockets[i]->receive(buffer, 100, bytesReceived);
+		buffer[bytesReceived] = '\0';
+		
+		if (status == sf::Socket::Status::Done)
+		{
+			aMensajes.push_back(std::string(buffer));
+		}
+		else if (status == sf::Socket::Status::Disconnected)
+		{
+			aMensajes.push_back("-A user has disconnected-");
+			sockets[i]->disconnect();
+			//esborrar
+		}
+	}
 }
 
 void coutStatus(sf::TcpSocket::Status &status) {
@@ -267,44 +260,3 @@ void coutStatus(sf::TcpSocket::Status &status) {
 	}
 	std::cout << "Status: " << statusStr << std::endl;
 }
-
-
-void sendAll(sf::String msg) {
-	for (int i = 0; i < sockets.size(); i++)
-	{
-		size_t confirmedSend;
-		do
-		{
-			status = sockets[i]->send(msg.toAnsiString().c_str(), msg.toAnsiString().length(), confirmedSend);	//TODO.... comprovar que s'hagi enviat tot...
-			if (status == sf::Socket::Status::Partial)
-			{
-				msg = msg.substring(confirmedSend + 1, msg.getSize());	//getSize() - length() segur?
-			}
-		} while (status == sf::Socket::Status::Partial);
-
-	}
-}
-
-void recieveFromAll() {
-	for (int i = 0; i < sockets.size(); i++)
-	{
-		char buffer[100];
-		size_t bytesReceived;
-		status = sockets[i]->receive(buffer, 100, bytesReceived);
-		buffer[bytesReceived] = '\0';
-		
-		if (status == sf::Socket::Status::Done)
-		{
-			aMensajes.push_back(std::string(buffer));
-		}
-		else if (status == sf::Socket::Status::Disconnected)
-		{
-			aMensajes.push_back("A user has disconnected");
-			//window.close();
-			//esborrar.....------------------------------------------------
-		}
-
-	}
-
-}
-
