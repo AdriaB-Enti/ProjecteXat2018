@@ -1,0 +1,7 @@
+﻿  Main.cpp
+Main.cpp(44): warning C4244: 'argument': conversion from 'float' to 'sf::Int32', possible loss of data
+Main.cpp(158): warning C4244: 'argument': conversion from '::size_t' to 'float', possible loss of data
+  Generating code
+  All 231 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  ClientUDP.vcxproj -> C:\Users\abiarnes\source\repos\ProjecteXat2018\Taller6\x64\Release\ClientUDP.exe

@@ -1,0 +1,4 @@
+﻿  Main.cpp
+d:\enti\coderepository1718\pgmjuegosred1718\proyectobase\main.cpp(21): warning C4244: 'argument': conversion from 'float' to 'sf::Int32', possible loss of data
+  ProyectoBase.vcxproj -> D:\ENTI\CodeRepository1718\PgmJuegosRed1718\x64\Debug\ProyectoBase.exe
+  ProyectoBase.vcxproj -> D:\ENTI\CodeRepository1718\PgmJuegosRed1718\x64\Debug\ProyectoBase.pdb (Partial PDB)
