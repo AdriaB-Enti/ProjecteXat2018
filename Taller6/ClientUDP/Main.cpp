@@ -6,14 +6,22 @@
 #include <vector>
 
 
+//TODO: posar en el game lib
+#define IPSERVER "127.0.0.1"
+#define PORTSERVER 50000
+
+enum Cabeceras
+{
+	HELLO,
+	WELCOME,
+	ACKNOWLEDGE,
+	NEW_PLAYER
+};
 
 int main()
 {
-	//Servidor Cliente
-	std::cout << "¿Seras servidor (s) o cliente (c)? ... ";
-	char c;
-	std::cin >> c;
-	sf::TcpSocket socket;
+	//Cliente
+	sf::UdpSocket socket;
 	socket.setBlocking(false);
 	std::string textoAEnviar = "";
 	std::vector<std::string> aMensajes;
@@ -21,21 +29,17 @@ int main()
 	std::cout << "Escribe tu nombre:\n";
 	std::cin >> user;
 
-		std::cout << "Escribe la IP del servidor (pulsa enter si quieres conectarte a localhost):\n";
+		/*std::cout << "Escribe la IP del servidor (pulsa enter si quieres conectarte a localhost):\n";
 		std::string ip = "";
 		std::cin.ignore();
 		std::getline(std::cin, ip);
 		if (ip.empty()) {
 			ip = "localhost";
-		}
+		}*/
 
-		socket.connect(ip, 50000, sf::milliseconds(15.f));
-		textoAEnviar = "Mensaje desde cliente\n";
-		aMensajes.push_back("Chat is online: You are the client!");
-		//user = "Client: ";
-
-	std::string texto = "Conexion con ... " + (socket.getRemoteAddress()).toString() + ":" + std::to_string(socket.getRemotePort()) + "\n";
-	std::cout << texto;
+	sf::Packet pack;
+	pack << Cabeceras::HELLO;
+	socket.send(pack, IPSERVER, PORTSERVER);
 
 
 
@@ -86,57 +90,61 @@ int main()
 					window.close();
 				else if (evento.key.code == sf::Keyboard::Return)
 				{
-					//aMensajes.push_back(user+mensaje);
-
-					//Send-------------------
-					std::string lastMessage = user + ": " + mensaje;
-					size_t confirmedSend;
-					sf::Socket::Status st;
-					do
-					{
-						st = socket.send(lastMessage.c_str(), lastMessage.length(), confirmedSend);	//vigilar lo del lastMessage
-						if (st == sf::Socket::Status::Partial)
-						{
-							lastMessage = lastMessage.substr(confirmedSend + 1, lastMessage.length());	//length() segur?
-						}
-					} while (st == sf::Socket::Status::Partial);
-					//End Send-------------------
 
 
-					if (aMensajes.size() > 25)
-					{
-						aMensajes.erase(aMensajes.begin(), aMensajes.begin() + 1);
-					}
-					mensaje = ">";
+
+					////aMensajes.push_back(user+mensaje);
+
+					////Send-------------------
+					//std::string lastMessage = user + ": " + mensaje;
+					//size_t confirmedSend;
+					//sf::Socket::Status st;
+					//do
+					//{
+					//	st = socket.send(lastMessage.c_str(), lastMessage.length(), confirmedSend);	//vigilar lo del lastMessage
+					//	if (st == sf::Socket::Status::Partial)
+					//	{
+					//		lastMessage = lastMessage.substr(confirmedSend + 1, lastMessage.length());	//length() segur?
+					//	}
+					//} while (st == sf::Socket::Status::Partial);
+					////End Send-------------------
+
+
+					//if (aMensajes.size() > 25)
+					//{
+					//	aMensajes.erase(aMensajes.begin(), aMensajes.begin() + 1);
+					//}
+					//mensaje = ">";
 				}
 				break;
-			case sf::Event::TextEntered:
-				if (evento.text.unicode >= 32 && evento.text.unicode <= 126)
-					mensaje += (char)evento.text.unicode;
-				else if (evento.text.unicode == 8 && mensaje.getSize() > 0)
-					mensaje.erase(mensaje.getSize() - 1, mensaje.getSize());
-				break;
+				/*case sf::Event::TextEntered:
+					if (evento.text.unicode >= 32 && evento.text.unicode <= 126)
+						mensaje += (char)evento.text.unicode;
+					else if (evento.text.unicode == 8 && mensaje.getSize() > 0)
+						mensaje.erase(mensaje.getSize() - 1, mensaje.getSize());
+					break;
+				}*/
 			}
 		}
 		window.draw(separator);
 
 		//Receive-------------------------------
-		sf::TcpSocket::Status result = socket.receive(buffer, 100, bytesReceived);
-		buffer[bytesReceived] = '\0';
-		if (result == sf::TcpSocket::Status::Done)
-		{
-			aMensajes.push_back(std::string(buffer)); //segurament s'ha de passar el buffer a string
-		}
-		else if (result == sf::TcpSocket::Status::Disconnected)
-		{
-			aMensajes.push_back("The user has disconnected");
-			window.close();
-		}
+		//sf::TcpSocket::Status result = socket.receive(buffer, 100, bytesReceived);
+		//buffer[bytesReceived] = '\0';
+		//if (result == sf::TcpSocket::Status::Done)
+		//{
+		//	aMensajes.push_back(std::string(buffer)); //segurament s'ha de passar el buffer a string
+		//}
+		//else if (result == sf::TcpSocket::Status::Disconnected)
+		//{
+		//	aMensajes.push_back("The user has disconnected");
+		//	window.close();
+		//}
 
 		//End Receive-------------------------------
 
 
-		for (size_t i = 0; i < aMensajes.size(); i++)
+		/*for (size_t i = 0; i < aMensajes.size(); i++)
 		{
 			std::string chatting = aMensajes[i];
 			chattingText.setPosition(sf::Vector2f(0, 20 * i));
@@ -147,11 +155,9 @@ int main()
 		text.setString(mensaje_);
 		window.draw(text);
 		window.display();
-		window.clear();
+		window.clear();*/
 	}
 
-
-	socket.disconnect();
 
 
 	system("pause");

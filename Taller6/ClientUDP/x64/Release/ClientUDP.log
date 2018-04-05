@@ -1,7 +1,9 @@
 ﻿  Main.cpp
-Main.cpp(44): warning C4244: 'argument': conversion from 'float' to 'sf::Int32', possible loss of data
-Main.cpp(158): warning C4244: 'argument': conversion from '::size_t' to 'float', possible loss of data
+Main.cpp(76): warning C4101: 'bytesReceived': unreferenced local variable
+Main.cpp(75): warning C4101: 'buffer': unreferenced local variable
   Generating code
-  All 231 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  7 of 122 functions ( 5.7%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    9 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   ClientUDP.vcxproj -> C:\Users\abiarnes\source\repos\ProjecteXat2018\Taller6\x64\Release\ClientUDP.exe
