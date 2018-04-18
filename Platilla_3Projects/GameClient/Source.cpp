@@ -1,5 +1,6 @@
 #pragma once
 #include <PlayerInfo.h>
+#include <SFML\Graphics.hpp>
 #include <SFML\Network.hpp>
 #include <iostream>
 
@@ -75,8 +76,89 @@ int main()
 		//reenviar el packet
 	}
 
-	int n;
-	std::cin >> n;
+	/*int n;
+	std::cin >> n;*/
+
+	//Creación de la ventana
+	sf::Vector2i screenDimensions(800, 900);
+	sf::RenderWindow window;
+	window.create(sf::VideoMode(screenDimensions.x, screenDimensions.y), "UDPGame");
+
+
+
+
+	while (window.isOpen())
+	{
+		sf::Event event;
+		while (window.pollEvent(event))
+		{
+			//Cerrar la ventana
+			if (event.type == sf::Event::Closed)
+				window.close();
+
+			//Detectar eventos de teclado
+			if (event.type == sf::Event::KeyPressed && (event.key.code == sf::Keyboard::Escape))
+				window.close();
+
+			//Detectar eventos de ratón
+			if (event.type == sf::Event::MouseButtonPressed) {
+				std::cout << "Mouse Pressed at position: " << event.mouseButton.x << ":"
+					<< event.mouseButton.y << std::endl;
+				/*if (Game::currentTurn == miTurno)
+				{
+					sendMove(event.mouseButton.x, event.mouseButton.y);
+				}*/
+				//sf::Mouse::getPosition(window)
+			}
+
+			//Detectar si estamos escribiendo algo, enviar el texto si presionamos enter, borrar la ultima letra si apretamos Backspace
+			if (event.type == sf::Event::TextEntered)
+			{
+				if (event.text.unicode > 31 && event.text.unicode < 128) {
+					/*mensajeTeclado.push_back(static_cast<char>(event.text.unicode));*/
+				}
+			}
+			if (event.type == sf::Event::KeyPressed && (event.key.code == sf::Keyboard::Return)) {		//Si apretamos enter, se envia el mensaje que teniamos escrito - TODO: controlar que no s'envii si està buit
+				/*if (!mensajeTeclado.empty()) {
+					sendToServer(user + ": " + mensajeTeclado);
+					mensajeTeclado = "";
+				}*/
+			}
+			if (event.type == sf::Event::KeyPressed && (event.key.code == sf::Keyboard::BackSpace)) {
+				/*if (!mensajeTeclado.empty())
+					mensajeTeclado.pop_back();*/
+			}
+		}
+
+		//recieveFromServer();
+
+
+		window.clear();
+
+		//Dibujar el mapa i jugadores
+		//window.draw(mapShape);
+		/*for (int i = 0; i < MAXPLAYERS; i++)
+		{
+			characterSprite.setPosition(sf::Vector2f(jugadores.at(i).position*TILESIZE));
+			if (jugadores.at(i).isDead)
+			{
+				characterSprite.rotate(-90);
+				characterSprite.move(sf::Vector2f(0, TILESIZE));
+			}
+			window.draw(characterSprite);
+			characterSprite.setRotation(0);
+			window.draw(jugadores.at(i).nameText);
+			window.draw(gameResult);
+		}*/
+
+		window.display();
+	}
+
+
+
+
+
+
 
 
 	return 0;
