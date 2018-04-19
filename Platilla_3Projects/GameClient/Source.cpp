@@ -7,7 +7,7 @@
 
 //Global vars
 unsigned short myID;
-
+PlayerInfo myPlayer;
 
 int main()
 {
@@ -26,7 +26,9 @@ int main()
 	unsigned short portServer;
 	//recibir el welcome del servidor
 
-	bool confirmationRecieved = true;
+	//TODO: anar enviant HELLO's mentres el server no respongui
+
+	bool confirmationRecieved = false;
 	while (!confirmationRecieved)
 	{
 		sf::UdpSocket::Status status = socket.receive(serverPack,ipServer, portServer);
@@ -52,13 +54,16 @@ int main()
 			sf::Uint8 cab8, id8;
 			serverPack >> cab8;
 			serverPack >> id8;
+			serverPack >> myPlayer.position.x;
+			serverPack >> myPlayer.position.y;
 
+			
 			if ((Cabeceras)cab8 == Cabeceras::WELCOME)
 			{
-				myID = (unsigned short)id8;
+				std::cout << "Benvingut, jugador amb ID=" << myID<< std::endl;
+				std::cout << "La teva posicio es=" << (int)myPlayer.position.x << ":" << (int)myPlayer.position.y << std::endl;
 			}
 
-			std::cout << "Benvingut, jugador amb ID=" << myID<< std::endl;
 
 			break;
 		case sf::Socket::NotReady:
@@ -95,6 +100,10 @@ int main()
 		std::cout << "Error al cargar la textura del personaje!\n";
 	/*if (!font.loadFromFile("courbd.ttf"))
 		std::cout << "Error al cargar la fuente" << std::endl;*/
+	mapShape.setTexture(&texture);	//s'hauria de provar amb sprites tmb
+	sf::Sprite characterSprite = sf::Sprite(characterTexture);
+
+
 
 	while (window.isOpen())
 	{
@@ -145,7 +154,7 @@ int main()
 		window.clear();
 
 		//Dibujar el mapa i jugadores
-		//window.draw(mapShape);
+		window.draw(mapShape);
 		/*for (int i = 0; i < MAXPLAYERS; i++)
 		{
 			characterSprite.setPosition(sf::Vector2f(jugadores.at(i).position*TILESIZE));
