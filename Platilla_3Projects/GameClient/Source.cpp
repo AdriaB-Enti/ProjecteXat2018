@@ -3,6 +3,7 @@
 #include <SFML\Graphics.hpp>
 #include <SFML\Network.hpp>
 #include <iostream>
+#include <Constants.h>
 
 //Global vars
 unsigned short myID;
@@ -25,7 +26,7 @@ int main()
 	unsigned short portServer;
 	//recibir el welcome del servidor
 
-	bool confirmationRecieved = false;
+	bool confirmationRecieved = true;
 	while (!confirmationRecieved)
 	{
 		sf::UdpSocket::Status status = socket.receive(serverPack,ipServer, portServer);
@@ -84,8 +85,16 @@ int main()
 	sf::RenderWindow window;
 	window.create(sf::VideoMode(screenDimensions.x, screenDimensions.y), "UDPGame");
 
+	//Texturas, Sprites y fuentes
+	sf::RectangleShape mapShape(sf::Vector2f(TILESIZE*N_TILES_WIDTH, TILESIZE*N_TILES_HEIGHT));
 
-
+	sf::Texture texture, characterTexture;
+	if (!texture.loadFromFile("mapa2.png"))
+		std::cout << "Error al cargar la textura del mapa!\n";
+	if (!characterTexture.loadFromFile("personatgeTransp.png"))
+		std::cout << "Error al cargar la textura del personaje!\n";
+	/*if (!font.loadFromFile("courbd.ttf"))
+		std::cout << "Error al cargar la fuente" << std::endl;*/
 
 	while (window.isOpen())
 	{

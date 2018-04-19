@@ -2,6 +2,7 @@
 #include <iostream>
 #include <SFML\Network.hpp>
 #include <PlayerInfo.h>
+#include <Constants.h>
 
 class serverPlayer :PlayerInfo {
 public:
