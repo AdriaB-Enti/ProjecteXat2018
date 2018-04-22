@@ -8,12 +8,20 @@
 //Global vars
 unsigned short myID;
 PlayerInfo myPlayer;
+sf::Sprite characterSprite;
+sf::Clock gameClock;
+sf::Time deltaSeconds;
+sf::UdpSocket socket;
+
+
+//Fw declarations
+void sendInputMovement();
+void recieveFromServer();
 
 int main()
 {
 	PlayerInfo playerInfo;
 
-	sf::UdpSocket socket;
 	socket.setBlocking(false);
 
 
@@ -63,7 +71,7 @@ int main()
 				std::cout << "Benvingut, jugador amb ID=" << myID<< std::endl;
 				std::cout << "La teva posicio es=" << (int)myPlayer.position.x << ":" << (int)myPlayer.position.y << std::endl;
 			}
-
+			
 
 			break;
 		case sf::Socket::NotReady:
@@ -89,7 +97,7 @@ int main()
 	sf::Vector2i screenDimensions(800, 900);
 	sf::RenderWindow window;
 	window.create(sf::VideoMode(screenDimensions.x, screenDimensions.y), "UDPGame");
-
+	
 	//Texturas, Sprites y fuentes
 	sf::RectangleShape mapShape(sf::Vector2f(TILESIZE*N_TILES_WIDTH, TILESIZE*N_TILES_HEIGHT));
 
@@ -100,24 +108,27 @@ int main()
 		std::cout << "Error al cargar la textura del personaje!\n";
 	/*if (!font.loadFromFile("courbd.ttf"))
 		std::cout << "Error al cargar la fuente" << std::endl;*/
-	mapShape.setTexture(&texture);	//s'hauria de provar amb sprites tmb
-	sf::Sprite characterSprite = sf::Sprite(characterTexture);
+	mapShape.setTexture(&texture);
 
+	//Create character sprite  -- Sprite y InfoPlayer tienen posiciones que se tendran que actualizar a la vez
+	characterSprite = sf::Sprite(characterTexture);
+	characterSprite.setPosition(myPlayer.position.x+10, myPlayer.position.y+50);
 
-
+	//sf::Clock gameClock;
+	gameClock.restart();
 	while (window.isOpen())
 	{
+		deltaSeconds = gameClock.restart();
+
 		sf::Event event;
-		while (window.pollEvent(event))
+		while (window.pollEvent(event))	//TODO: esborrar o netejar/organitzar
 		{
 			//Cerrar la ventana
 			if (event.type == sf::Event::Closed)
 				window.close();
-
 			//Detectar eventos de teclado
 			if (event.type == sf::Event::KeyPressed && (event.key.code == sf::Keyboard::Escape))
 				window.close();
-
 			//Detectar eventos de ratón
 			if (event.type == sf::Event::MouseButtonPressed) {
 				std::cout << "Mouse Pressed at position: " << event.mouseButton.x << ":"
@@ -128,7 +139,6 @@ int main()
 				}*/
 				//sf::Mouse::getPosition(window)
 			}
-
 			//Detectar si estamos escribiendo algo, enviar el texto si presionamos enter, borrar la ultima letra si apretamos Backspace
 			if (event.type == sf::Event::TextEntered)
 			{
@@ -149,12 +159,19 @@ int main()
 		}
 
 		//recieveFromServer();
+		sendInputMovement();
+		
+
 
 
 		window.clear();
 
 		//Dibujar el mapa i jugadores
 		window.draw(mapShape);
+		//Nuestro jugador
+		window.draw(characterSprite);
+		
+
 		/*for (int i = 0; i < MAXPLAYERS; i++)
 		{
 			characterSprite.setPosition(sf::Vector2f(jugadores.at(i).position*TILESIZE));
@@ -172,7 +189,7 @@ int main()
 		window.display();
 	}
 
-
+	
 
 
 
@@ -180,4 +197,91 @@ int main()
 
 
 	return 0;
+}
+
+void sendInputMovement()
+{
+	float speed = 1.f; //Pixels / ms
+	//O se envia left, o se envia right, nunca los dos a la vez
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
+		//characterSprite.move(-speed*deltaSeconds.asMilliseconds(), 0);
+
+		//Enviar al servidor
+		sf::Packet movePack;
+		movePack << (sf::Uint8)Cabeceras::MOVE_LEFT;
+		socket.send(movePack, IPSERVER, PORTSERVER);
+
+	} else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+		//characterSprite.move(speed*deltaSeconds.asMilliseconds(), 0);
+
+		//Enviar al servidor
+		sf::Packet movePack;
+		movePack << (sf::Uint8)Cabeceras::MOVE_RIGHT;
+		socket.send(movePack, IPSERVER, PORTSERVER);
+	}
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
+		//characterSprite.move(0, -speed*deltaSeconds.asMilliseconds());
+
+		//Enviar al servidor
+		sf::Packet movePack;
+		movePack << (sf::Uint8)Cabeceras::MOVE_UP;
+		socket.send(movePack, IPSERVER, PORTSERVER);
+	} else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
+		//characterSprite.move(0, speed*deltaSeconds.asMilliseconds());
+		
+		//Enviar al servidor
+		sf::Packet movePack;
+		movePack << (sf::Uint8)Cabeceras::MOVE_DOWN;
+		socket.send(movePack, IPSERVER, PORTSERVER);
+	}
+}
+
+void recieveFromServer()
+{
+	sf::Packet serverPacket;
+	sf::IpAddress ip;
+	unsigned short port;
+	//Suponemos que solo recibiremos del servidor
+	sf::UdpSocket::Status status = socket.receive(serverPacket, ip,port);
+	switch (status)
+	{
+	case sf::Socket::Done:
+	{
+		std::cout << "recieved" << std::endl;
+		int comandoInt;
+		serverPacket >> comandoInt;
+		Cabeceras comando = (Cabeceras)comandoInt;
+		switch (comando)
+		{
+		case ACKNOWLEDGE:
+			break;
+		case NEW_PLAYER:
+			//Mostrar mensaje por pantalla?
+			std::cout << "se ha conectado un nuevo jugador";
+			break;
+		case OK_POSITION:		//TODO-- enviar id jugador
+			sf::Uint32 newPosX, newPosY;
+			serverPacket >> newPosX;
+			serverPacket >> newPosY;
+			characterSprite.setPosition(newPosX, newPosY);
+
+			break;
+		default:
+			break;
+		}
+	}
+		break;
+	case sf::Socket::NotReady:
+		break;
+	case sf::Socket::Partial:
+		break;
+	case sf::Socket::Disconnected:
+		break;
+	case sf::Socket::Error:
+		std::cout << "Error al recibir un paquete del servidor\n";
+		break;
+	default:
+		break;
+	}
 }

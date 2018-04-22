@@ -9,6 +9,8 @@
 #define TILESIZE 100
 #define N_TILES_WIDTH 8
 #define N_TILES_HEIGHT 8
+//Game properties
+#define CHARACTER_SPEED 0.02f
 
 //Enums
 enum Cabeceras
@@ -16,6 +18,11 @@ enum Cabeceras
 	HELLO,
 	WELCOME,
 	ACKNOWLEDGE,
-	NEW_PLAYER
+	NEW_PLAYER,
+	MOVE_LEFT,
+	MOVE_RIGHT,
+	MOVE_UP,
+	MOVE_DOWN,
+	OK_POSITION
 };
 

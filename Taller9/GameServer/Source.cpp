@@ -27,6 +27,7 @@ sf::UdpSocket socket;
 
 //Fw declarations
 bool isPlayerSaved(sf::IpAddress ip, unsigned short port);
+bool checkMove(int x, int y);
 
 int main()
 {
@@ -37,10 +38,10 @@ int main()
 
 	while (true)
 	{
-		sf::IpAddress ip;
-		unsigned short port;
+		sf::IpAddress clientIp;
+		unsigned short clientPort;
 		sf::Packet pack;
-		sf::UdpSocket::Status status = socket.receive(pack, ip, port);
+		sf::UdpSocket::Status status = socket.receive(pack, clientIp, clientPort);
 
 		switch (status)
 		{
@@ -48,18 +49,19 @@ int main()
 		{
 
 			std::cout << "recieved" << std::endl;
-			int comandoInt;
+			sf::Uint8 comandoInt;
 			pack >> comandoInt;
 			Cabeceras comando = (Cabeceras)comandoInt;
 
 			switch (comando)
 			{
 			case HELLO:
-				if (!isPlayerSaved(ip, port)) {
+			{
+				if (!isPlayerSaved(clientIp, clientPort)) {
 					//enviar la posició aleatoria en el mapa
 
 					sf::Vector2i position = totalPlayers == 0 ? sf::Vector2i(0, 0) : sf::Vector2i(N_TILES_WIDTH*2, N_TILES_HEIGHT*2);
-					serverPlayer newPlayer = serverPlayer(ip, port, (std::string)"", position, totalPlayers);
+					serverPlayer newPlayer = serverPlayer(clientIp, clientPort, (std::string)"", position, totalPlayers);
 					players.push_back(newPlayer);
 					//totalPlayers = 15;
 					//sf::Int8 totalPlayersInt8 = (sf::Int8) totalPlayers;
@@ -69,14 +71,14 @@ int main()
 					welcomePack << (sf::Uint8) totalPlayers;
 					welcomePack << (sf::Uint32) position.x;
 					welcomePack << (sf::Uint32) position.y;
-					socket.send(welcomePack, ip, port);
+					socket.send(welcomePack, clientIp, clientPort);
 					totalPlayers++;
 				}
 				else
 				{
 					std::cout << "Client was already connected" << std::endl;
 					//TODO
-					//Buscar jugador amb el ip:port
+					//Buscar jugador amb el clientIp:clientPort
 					//trobar la seva posicio
 					//enviar, sense tocar el totalPlayers ni res
 					sf::Packet welcomePack;
@@ -85,9 +87,8 @@ int main()
 
 				}
 				std::cout << "A client has connected" << std::endl;
-
 				//TODO: send welcome
-
+			}
 
 				break;
 			case WELCOME:
@@ -95,6 +96,29 @@ int main()
 			case ACKNOWLEDGE:
 				break;
 			case NEW_PLAYER:
+				break;
+			case MOVE_LEFT:
+			{
+				std::cout << "player " << clientIp.toString() << " moving left\n";
+
+				//hard coded al primer jugador. buscar el jugador pertinent
+				//players.front().position
+				//int newPosX = CHARACTER_SPEED
+				//checkMove(newPosX,
+				sf::Packet movementPacket;
+				movementPacket << (sf::Uint8)Cabeceras::OK_POSITION;
+
+			}
+
+				break;
+			case MOVE_RIGHT:
+				std::cout << "player " << clientIp.toString() << " moving right\n";
+				break;
+			case MOVE_UP:
+				std::cout << "player " << clientIp.toString() << " moving up\n";
+				break;
+			case MOVE_DOWN:
+				std::cout << "player " << clientIp.toString() << " moving down\n";
 				break;
 			default:
 				break;
@@ -136,5 +160,15 @@ bool isPlayerSaved(sf::IpAddress ip, unsigned short port) {
 			return true;
 		}
 	}
+	return false;
+}
+
+//Checks if a position is inside the map
+bool checkMove(int x, int y)
+{
+	if (x > 0 && x < TILESIZE*N_TILES_WIDTH && y > 0 && y < TILESIZE*N_TILES_HEIGHT) {
+		return true;
+	}
+
 	return false;
 }
